@@ -8,5 +8,6 @@ class RandomAlgorithm
 public:
 	static void randomAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today);
 
+	static void greedyAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today);
 };
 

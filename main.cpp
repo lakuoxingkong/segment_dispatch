@@ -15,5 +15,7 @@ int main() {
     Date today(2014, 8, 14);
     RandomAlgorithm::randomAlgorithm(yards, segments, segments_in_yard, today);
 
+    RandomAlgorithm::greedyAlgorithm(yards, segments, segments_in_yard, today);
+
 	puts("success.");
 }
