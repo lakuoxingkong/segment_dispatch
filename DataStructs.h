@@ -55,3 +55,10 @@ struct Segment {
     Segment(std::string& str);
 };
 
+struct Result {
+    int n_segments_timeout; // 不能按期入场的分段数量
+    double total_space_utilized_rate; // 多日平均空间利用率
+    double avg_distance; // 我们放入的分段到总段平均距离
+    Result(int n_segments_timeout = 0, double total_space_utilized_rate = 0, double avg_distance = 0);
+    double fitnessValue(); // 计算适应值
+};

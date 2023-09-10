@@ -2,7 +2,7 @@
 #include<random>
 
 // 此函数内不考虑横放或竖放
-bool isSpaceAvailable(int length, int width, const Yard& yard, int x, int y) {
+bool RandomAlgorithm::isSpaceAvailable(int length, int width, const Yard& yard, int x, int y) {
 	// todo:边界可以再处理，浮点数？
 	// 检查越界
 	if (x + length / yard.cell_length >= yard.free_map.size() || y + width / yard.cell_width >= yard.free_map[0].size()) {
@@ -21,7 +21,7 @@ bool isSpaceAvailable(int length, int width, const Yard& yard, int x, int y) {
 
 // horizontal_or_vertical: 1 for horizontal, 2 for vertical
 // in_or_out: 1 for in, 2 for out
-void updateFreemap(int length, int width, Yard& yard, int x, int y, int horizontal_or_vertical, int in_or_out) {
+void RandomAlgorithm::updateFreemap(int length, int width, Yard& yard, int x, int y, int horizontal_or_vertical, int in_or_out) {
 	// 默认当他不越界
 	if (horizontal_or_vertical == 1) {
 		// todo:边界可以再处理，浮点数？
@@ -170,6 +170,7 @@ void RandomAlgorithm::randomAlgorithm(std::vector<Yard> yards, std::list<Segment
 		total_space_utilized_rate += today_space_utilized_rate;
 		++day; // 日数+1
 		++today; // 日期+1
+		printf("day %d space_utilized:%d\n", day, space_utilized);
 	}
 
 	total_space_utilized_rate /= day; // 多日平均空间利用率
@@ -180,7 +181,7 @@ void RandomAlgorithm::randomAlgorithm(std::vector<Yard> yards, std::list<Segment
 
 }
 
-void RandomAlgorithm::greedyAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today)
+Result RandomAlgorithm::greedyAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today)
 {
 	puts("---greedyAlgorithm---");
 	int total_space = 0; // 各堆场总面积，按实际长度算，而不是格子数
@@ -190,6 +191,7 @@ void RandomAlgorithm::greedyAlgorithm(std::vector<Yard> yards, std::list<Segment
 	int segments_origin_size = segments.size(); // 用于除total_distance
 	int day = 0;
 	int n_segments_timeout = 0; // 不能按期入场的分段数量
+	int total_delay_days = 0; // 分段延迟入场的天数
 	// yards按到总段距离升序排序，便于后面的greedy算法
 	std::sort(yards.begin(), yards.end(), [](const Yard& a, const Yard& b) {
 		return a.distance_to_block < b.distance_to_block;
@@ -283,6 +285,7 @@ void RandomAlgorithm::greedyAlgorithm(std::vector<Yard> yards, std::list<Segment
 					s.coordinate.x, s.coordinate.y, s.coordinate.horizontal_or_vertical, 1);
 
 				space_utilized += s.length * s.width; // 累加利用面积
+				
 				total_distance += yards[it->coordinate.num_yard].distance_to_block;
 				segments_in_yard.push_back(s);
 				it = segments_to_enter.erase(it);
@@ -292,11 +295,15 @@ void RandomAlgorithm::greedyAlgorithm(std::vector<Yard> yards, std::list<Segment
 		total_space_utilized_rate += today_space_utilized_rate;
 		++day; // 日数+1
 		++today; // 日期+1
+		printf("day %d space_utilized:%d\n", day, space_utilized);
 	}
 
 	total_space_utilized_rate /= day; // 多日平均空间利用率
-
+	double avg_distance = (double)total_distance / segments_origin_size; // 我们放入的分段到总段平均距离
 	printf("不能按期入场的分段数量:%d\n多日平均空间利用率:%f\n我们放入的分段到总段平均距离:%f\n",
-		n_segments_timeout, total_space_utilized_rate, (double)total_distance / segments_origin_size);
+		n_segments_timeout, total_space_utilized_rate, avg_distance);
 	printf("%d %d\n", day, total_distance);
+
+	return Result(n_segments_timeout, total_space_utilized_rate, avg_distance);
 }
+

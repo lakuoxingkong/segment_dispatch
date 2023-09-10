@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="DataStructs.cpp" />
     <ClCompile Include="FileReader.cpp" />
+    <ClCompile Include="GeneticAlgorithm.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RandomAlgorithm.cpp" />
   </ItemGroup>
@@ -155,6 +156,7 @@
   <ItemGroup>
     <ClInclude Include="DataStructs.h" />
     <ClInclude Include="FileReader.h" />
+    <ClInclude Include="GeneticAlgorithm.h" />
     <ClInclude Include="RandomAlgorithm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

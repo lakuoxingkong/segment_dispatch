@@ -27,6 +27,9 @@
     <ClCompile Include="DataStructs.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="GeneticAlgorithm.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="segment_data.csv">
@@ -52,6 +55,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="RandomAlgorithm.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneticAlgorithm.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

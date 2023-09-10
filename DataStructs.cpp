@@ -92,3 +92,15 @@ Date& Date::operator++() {
     }
     return *this;  // 返回自身以支持连续的++操作
 }
+
+Result::Result(int n_segments_timeout, double total_space_utilized_rate, double avg_distance):
+    n_segments_timeout(n_segments_timeout), total_space_utilized_rate(total_space_utilized_rate), avg_distance(avg_distance)
+{
+}
+
+double Result::fitnessValue()
+{
+    double alpha = 100; // 控制两指标的重要性
+    double beta = 1;
+    return alpha * total_space_utilized_rate + beta * avg_distance;
+}

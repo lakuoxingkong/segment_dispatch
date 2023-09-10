@@ -15,7 +15,7 @@ std::vector<Yard> FileReader::readYardData(const std::string& filename)
     for (int i = 0; i < num_yards; ++i) {
         file >> yards[i].length >> yards[i].width >> yards[i].cell_length >> yards[i].cell_width >> yards[i].distance_to_block;
         // 将freemap初始化为0
-        yards[i].free_map.assign(yards[i].length, std::vector<int>(yards[i].width, 0));
+        yards[i].free_map.assign(yards[i].length / yards[i].cell_length, std::vector<int>(yards[i].width / yards[i].cell_width, 0));
     }
     
 
