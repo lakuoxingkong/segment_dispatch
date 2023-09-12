@@ -32,7 +32,12 @@ Segment::Segment(std::string& str)
     this->latest_in_time = Date(token);
     std::getline(tokenStream, token, ',');
     this->planning_out_time = Date(token);
-} 
+}
+bool Segment::operator==(const Segment& b)
+{
+    return this->number == b.number;
+}
+
 
 
 Yard::Yard(): free_map()
@@ -78,6 +83,23 @@ bool Date::operator==(const Date& d)
     return this->year == d.year && this->day == d.day && this->month == d.month;
 }
 
+bool Date::operator<(const Date& d)
+{
+    if (year < d.year)
+        return true;
+    else if (year > d.year)
+        return false;
+
+    // 年份相同时，比较月份
+    if (month < d.month)
+        return true;
+    else if (month > d.month)
+        return false;
+
+    // 年份和月份都相同时，比较日期
+    return day < d.day;
+}
+
 Date& Date::operator++() {
     ++day;
     // 处理溢出和月份变化
@@ -102,5 +124,6 @@ double Result::fitnessValue()
 {
     double alpha = 100; // 控制两指标的重要性
     double beta = 1;
-    return alpha * total_space_utilized_rate + beta * avg_distance;
+    double theta = 100;
+    return alpha * total_space_utilized_rate - beta * avg_distance - theta * n_segments_timeout;
 }

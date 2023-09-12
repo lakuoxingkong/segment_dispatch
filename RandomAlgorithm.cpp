@@ -53,9 +53,9 @@ void RandomAlgorithm::updateFreemap(int length, int width, Yard& yard, int x, in
 	//return 0;
 }
 
-void RandomAlgorithm::randomAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today)
+Result RandomAlgorithm::randomAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today)
 {
-	puts("---randomAlgorithm---");
+	
 	int total_space = 0; // 各堆场总面积，按实际长度算，而不是格子数
 	int space_utilized = 0; // 各堆场已利用的面积
 	double total_space_utilized_rate = 0; // 多日平均空间利用率
@@ -170,20 +170,21 @@ void RandomAlgorithm::randomAlgorithm(std::vector<Yard> yards, std::list<Segment
 		total_space_utilized_rate += today_space_utilized_rate;
 		++day; // 日数+1
 		++today; // 日期+1
-		printf("day %d space_utilized:%d\n", day, space_utilized);
+		//printf("day %d space_utilized:%d\n", day, space_utilized);
 	}
 
 	total_space_utilized_rate /= day; // 多日平均空间利用率
+	double avg_distance = (double)total_distance / (segments_origin_size - n_segments_timeout); // 我们放入的分段到总段平均距离
+	/*printf("不能按期入场的分段数量:%d\n多日平均空间利用率:%f\n我们放入的分段到总段平均距离:%f\n", 
+		n_segments_timeout, total_space_utilized_rate, avg_distance);
+	printf("%d %d\n", day, total_distance);*/
 
-	printf("不能按期入场的分段数量:%d\n多日平均空间利用率:%f\n我们放入的分段到总段平均距离:%f\n", 
-		n_segments_timeout, total_space_utilized_rate, (double)total_distance / segments_origin_size);
-	printf("%d %d\n", day, total_distance);
-
+	return Result(n_segments_timeout, total_space_utilized_rate, avg_distance);
 }
 
 Result RandomAlgorithm::greedyAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today)
 {
-	puts("---greedyAlgorithm---");
+	
 	int total_space = 0; // 各堆场总面积，按实际长度算，而不是格子数
 	int space_utilized = 0; // 各堆场已利用的面积
 	double total_space_utilized_rate = 0; // 多日平均空间利用率
@@ -295,14 +296,14 @@ Result RandomAlgorithm::greedyAlgorithm(std::vector<Yard> yards, std::list<Segme
 		total_space_utilized_rate += today_space_utilized_rate;
 		++day; // 日数+1
 		++today; // 日期+1
-		printf("day %d space_utilized:%d\n", day, space_utilized);
+		//printf("day %d space_utilized:%d\n", day, space_utilized);
 	}
 
 	total_space_utilized_rate /= day; // 多日平均空间利用率
-	double avg_distance = (double)total_distance / segments_origin_size; // 我们放入的分段到总段平均距离
-	printf("不能按期入场的分段数量:%d\n多日平均空间利用率:%f\n我们放入的分段到总段平均距离:%f\n",
-		n_segments_timeout, total_space_utilized_rate, avg_distance);
-	printf("%d %d\n", day, total_distance);
+	double avg_distance = (double)total_distance / (segments_origin_size - n_segments_timeout); // 我们放入的分段到总段平均距离
+	//printf("不能按期入场的分段数量:%d\n多日平均空间利用率:%f\n我们放入的分段到总段平均距离:%f\n",
+	//	n_segments_timeout, total_space_utilized_rate, avg_distance);
+	//printf("%d %d\n", day, total_distance);
 
 	return Result(n_segments_timeout, total_space_utilized_rate, avg_distance);
 }

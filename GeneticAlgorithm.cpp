@@ -4,9 +4,9 @@
 #include"RandomAlgorithm.h"
 
 
-void GeneticAlgorithm::geneticAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today)
+Result GeneticAlgorithm::geneticAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today)
 {
-	puts("---geneticAlgorithm---");
+	
 	int total_space = 0; // 各堆场总面积，按实际长度算，而不是格子数
 	int space_utilized = 0; // 各堆场已利用的面积
 	double total_space_utilized_rate = 0; // 多日平均空间利用率
@@ -35,7 +35,7 @@ void GeneticAlgorithm::geneticAlgorithm(std::vector<Yard> yards, std::list<Segme
 	std::vector<double> fitRatio(this->n_population, 0.0); // 用于轮盘赌选择
 	int i = 0;
 	double fitsum = 0;
-	int best_fitness = 0; // fitness最高的个体（调度顺序）的fitness值
+	double best_fitness = - 1e8; // fitness最高的个体（调度顺序）的fitness值
 	std::list<Segment> best_chrom; // fitness最高的个体（调度顺序）
 	Result best_result;
 	for (auto& chrom: population) {
@@ -43,9 +43,12 @@ void GeneticAlgorithm::geneticAlgorithm(std::vector<Yard> yards, std::list<Segme
 		// todo: 按照最早入场日期
 		std::vector<Segment> temp(segments.begin(), segments.end());
 		std::shuffle(temp.begin(), temp.end(), std::mt19937(std::random_device()()));
-
+		
 		chrom.assign(temp.begin(), temp.end());
-		printf("%d %d\n", segments.begin()->number, chrom.begin()->number);
+		// 可考虑再按最晚入场时间从早到晚排序，相当于只打乱了最晚入场时间相同的分段的顺序
+		/*chrom.sort([](Segment& a, Segment& b) {
+			return a.latest_in_time < b.latest_in_time;
+			});*/
 
 		// 评估chrom：可直接调用greedy
 		Result result = RandomAlgorithm::greedyAlgorithm(yards, chrom, segments_in_yard, today);
@@ -83,7 +86,7 @@ void GeneticAlgorithm::geneticAlgorithm(std::vector<Yard> yards, std::list<Segme
 		}
 		// 交叉
 		for (int i = 0; i <= n_population - 2; i = i + 2)
-		{//交叉 相邻两条染色体 单点交叉
+		{//交叉 相邻两条染色体 顺序交叉
 			double pick = dist(gen); // 0-1.0随机数
 			if (pick > this->p_crossing)
 			{ // 不交叉 
@@ -92,19 +95,48 @@ void GeneticAlgorithm::geneticAlgorithm(std::vector<Yard> yards, std::list<Segme
 			}
 			else
 			{ // 交叉
-				std::uniform_int_distribution<int> dist2(1, segments.size() - 1);
-				int crossing_point = dist2(gen);
-				// 使用 std::advance 移动迭代器到指定位置
-				auto it1 = selected_population[i].begin();
-				auto it2 = selected_population[i + 1].begin();
-				std::advance(it1, crossing_point);
-				std::advance(it2, crossing_point);
-
-				while (it1 != selected_population[i].end() && it2 != selected_population[i + 1].end()) {
-					std::swap(*it1, *it2);
-					++it1;
-					++it2;
+				std::vector<Segment> parent1(selected_population[i].begin(), selected_population[i].end());
+				std::vector<Segment> parent2(selected_population[i + 1].begin(), selected_population[i + 1].end());
+				// 随机选择两个交叉点
+				std::random_device rd;
+				std::mt19937 gen(rd());
+				std::uniform_int_distribution<int> distribution(0, parent1.size() - 1);
+				int point1 = distribution(gen);
+				int point2 = distribution(gen);
+				while (point1 == point2) {
+					point2 = distribution(gen);
 				}
+				if (point1 > point2) {
+					std::swap(point1, point2);
+				}
+
+				// 创建两个子代，初始化为-1（表示未访问的城市）
+				std::vector<Segment> child1(parent1.size());
+				std::vector<Segment> child2(parent2.size());
+
+				// 复制第一个交叉点之间的城市
+				copy(parent1.begin() + point1, parent1.begin() + point2 + 1, child1.begin() + point1);
+				copy(parent2.begin() + point1, parent2.begin() + point2 + 1, child2.begin() + point1);
+
+				// 填充剩余的城市
+				int index1 = (point2 + 1) % parent1.size();
+				int index2 = (point2 + 1) % parent2.size();
+
+				for (const Segment& city : parent2) {
+					if (find(child1.begin(), child1.end(), city) == child1.end()) {
+						child1[index1] = city;
+						index1 = (index1 + 1) % parent1.size();
+					}
+				}
+
+				for (const Segment& city : parent1) {
+					if (find(child2.begin(), child2.end(), city) == child2.end()) {
+						child2[index2] = city; 
+						index2 = (index2 + 1) % parent2.size();
+					}
+				}
+				selected_population[i].assign(child1.begin(), child1.end());
+				selected_population[i + 1].assign(child2.begin(), child2.end());
 			}
 		}
 		// 变异 采用交换变异
@@ -142,9 +174,9 @@ void GeneticAlgorithm::geneticAlgorithm(std::vector<Yard> yards, std::list<Segme
 			}
 		}
 	}
-	printf("最佳结果：\n不能按期入场的分段数量:%d\n多日平均空间利用率:%f\n我们放入的分段到总段平均距离:%f\n",
-		best_result.n_segments_timeout, best_result.total_space_utilized_rate, best_result.avg_distance);
-
+	printf("最佳结果：\n适应值:%f\n不能按期入场的分段数量:%d\n多日平均空间利用率:%f\n我们放入的分段到总段平均距离:%f\n",
+		best_result.fitnessValue(), best_result.n_segments_timeout, best_result.total_space_utilized_rate, best_result.avg_distance);
+	return best_result;
 }
 
 GeneticAlgorithm::GeneticAlgorithm(int np, double pc, double pm, int mg):

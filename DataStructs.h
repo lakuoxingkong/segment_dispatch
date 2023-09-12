@@ -18,6 +18,7 @@ public:
     Date(std::string& str);
     Date(int y, int m, int d);
     bool operator==(const Date& d);
+    bool operator<(const Date& d);
     // 重载前缀++
     Date& operator++();
 };
@@ -53,6 +54,8 @@ struct Segment {
     Coordinate coordinate;
     Segment();
     Segment(std::string& str);
+    // 用于GA顺序交叉
+    bool operator==(const Segment& b);
 };
 
 struct Result {

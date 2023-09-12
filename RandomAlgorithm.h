@@ -13,7 +13,7 @@ public:
 	// in_or_out: 1 for in, 2 for out
 	static void updateFreemap(int length, int width, Yard& yard, int x, int y, int horizontal_or_vertical, int in_or_out);
 
-	static void randomAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today);
+	static Result randomAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today);
 
 	static Result greedyAlgorithm(std::vector<Yard> yards, std::list<Segment> segments, std::list<Segment> segments_in_yard, Date today);
 
